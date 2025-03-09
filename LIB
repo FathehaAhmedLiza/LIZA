@@ -1,0 +1,392 @@
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class LibraryManagementSystem {
+
+    // Data storage
+    private static List<String[]> librarians = new ArrayList<>(); // Stores [id, name, password]
+    private static List<String[]> books = new ArrayList<>(); // Stores [id, title, author, quantity]
+    private static Map<String, String> issuedBooks = new HashMap<>(); // Stores <BookID, StudentID>
+
+    public static void main(String[] args) {
+        // Create and show the main frame
+        SwingUtilities.invokeLater(() -> {
+            createMainFrame();
+        });
+    }
+
+    // Create the main menu
+    private static void createMainFrame() {
+        JFrame mainFrame = new JFrame("Library Management System");
+        mainFrame.setSize(500, 400);
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mainFrame.setLayout(new BorderLayout());
+
+        // Header
+        JLabel header = new JLabel("Library Management", SwingConstants.CENTER);
+        header.setFont(new Font("Arial", Font.BOLD, 24));
+        mainFrame.add(header, BorderLayout.NORTH);
+
+        // Buttons Panel
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 1, 10, 10));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(50, 100, 50, 100));
+
+        JButton adminBtn = new JButton("Admin Login");
+        JButton librarianBtn = new JButton("Librarian Login");
+
+        // Admin Login Button
+        adminBtn.addActionListener(e -> {
+            mainFrame.dispose(); // Close main menu
+            createAdminLogin(); // Open admin login
+        });
+
+        // Librarian Login Button
+        librarianBtn.addActionListener(e -> {
+            mainFrame.dispose(); // Close main menu
+            createLibrarianLogin(); // Open librarian login
+        });
+
+        buttonPanel.add(adminBtn);
+        buttonPanel.add(librarianBtn);
+
+        mainFrame.add(buttonPanel, BorderLayout.CENTER);
+        mainFrame.setVisible(true);
+    }
+
+    // Admin Login
+    private static void createAdminLogin() {
+        JFrame adminLoginFrame = new JFrame("Admin Login");
+        adminLoginFrame.setSize(400, 300);
+        adminLoginFrame.setLayout(new BorderLayout());
+
+        JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
+
+        JLabel userLabel = new JLabel("Username:");
+        JTextField userField = new JTextField();
+        JLabel passLabel = new JLabel("Password:");
+        JPasswordField passField = new JPasswordField();
+        JButton loginBtn = new JButton("Login");
+
+        // Login Button Action
+        loginBtn.addActionListener(e -> {
+            String username = userField.getText();
+            String password = new String(passField.getPassword());
+
+            // Check if username and password are correct
+            if (username.equals("admin") && password.equals("admin123")) {
+                adminLoginFrame.dispose(); // Close login window
+                createAdminSection(); // Open admin section
+            } else {
+                JOptionPane.showMessageDialog(adminLoginFrame, "Invalid username or password!");
+            }
+        });
+
+        panel.add(userLabel);
+        panel.add(userField);
+        panel.add(passLabel);
+        panel.add(passField);
+        panel.add(new JLabel()); // Empty label for spacing
+        panel.add(loginBtn);
+
+        adminLoginFrame.add(panel, BorderLayout.CENTER);
+        adminLoginFrame.setVisible(true);
+    }
+
+    // Admin Section
+    private static void createAdminSection() {
+        JFrame adminFrame = new JFrame("Admin Section");
+        adminFrame.setSize(500, 400);
+        adminFrame.setLayout(new BorderLayout());
+
+        // Header
+        JLabel header = new JLabel("Admin Section", SwingConstants.CENTER);
+        header.setFont(new Font("Arial", Font.BOLD, 24));
+        adminFrame.add(header, BorderLayout.NORTH);
+
+        // Buttons Panel
+        JPanel buttonPanel = new JPanel(new GridLayout(4, 1, 10, 10));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(50, 100, 50, 100));
+
+        String[] adminButtons = {
+            "Add Librarian", "View Librarian", "Delete Librarian", "Logout"
+        };
+
+        for (String btnText : adminButtons) {
+            JButton btn = new JButton(btnText);
+            if (btnText.equals("Logout")) {
+                // Logout Button
+                btn.addActionListener(e -> {
+                    adminFrame.dispose(); // Close admin section
+                    createMainFrame(); // Return to main menu
+                });
+            } else {
+                // Other Buttons
+                btn.addActionListener(e -> handleAdminButtonClick(btnText, adminFrame));
+            }
+            buttonPanel.add(btn);
+        }
+
+        adminFrame.add(buttonPanel, BorderLayout.CENTER);
+        adminFrame.setVisible(true);
+    }
+
+    // Handle Admin Button Clicks
+    private static void handleAdminButtonClick(String buttonText, JFrame adminFrame) {
+        switch (buttonText) {
+            case "Add Librarian":
+                addLibrarian(adminFrame); // Add a new librarian
+                break;
+            case "View Librarian":
+                viewLibrarian(adminFrame); // View all librarians
+                break;
+            case "Delete Librarian":
+                deleteLibrarian(adminFrame); // Delete a librarian
+                break;
+            default:
+                JOptionPane.showMessageDialog(adminFrame, "Unknown button clicked.");
+                break;
+        }
+    }
+
+    // Add a Librarian
+    private static void addLibrarian(JFrame parentFrame) {
+        String id = JOptionPane.showInputDialog(parentFrame, "Enter Librarian ID:");
+        String name = JOptionPane.showInputDialog(parentFrame, "Enter Librarian Name:");
+        String password = JOptionPane.showInputDialog(parentFrame, "Enter Password:");
+
+        if (id != null && name != null && password != null) {
+            librarians.add(new String[]{id, name, password}); // Add to list
+            JOptionPane.showMessageDialog(parentFrame, "Librarian added successfully!");
+        } else {
+            JOptionPane.showMessageDialog(parentFrame, "All fields are required!");
+        }
+    }
+
+    // View All Librarians
+    private static void viewLibrarian(JFrame parentFrame) {
+        StringBuilder librarianList = new StringBuilder();
+        for (String[] librarian : librarians) {
+            librarianList.append("ID: ").append(librarian[0])
+                    .append(", Name: ").append(librarian[1])
+                    .append("\n");
+        }
+
+        if (librarianList.length() == 0) {
+            librarianList.append("No librarians found.");
+        }
+
+        JOptionPane.showMessageDialog(parentFrame, librarianList.toString(), "Librarian List", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    // Delete a Librarian
+    private static void deleteLibrarian(JFrame parentFrame) {
+        String id = JOptionPane.showInputDialog(parentFrame, "Enter Librarian ID to delete:");
+        if (id != null && !id.isEmpty()) {
+            boolean removed = false;
+            for (String[] librarian : librarians) {
+                if (librarian[0].equals(id)) {
+                    librarians.remove(librarian); // Remove from list
+                    removed = true;
+                    break;
+                }
+            }
+            if (removed) {
+                JOptionPane.showMessageDialog(parentFrame, "Librarian deleted successfully!");
+            } else {
+                JOptionPane.showMessageDialog(parentFrame, "Librarian not found!");
+            }
+        }
+    }
+
+    // Librarian Login
+    private static void createLibrarianLogin() {
+        JFrame librarianLoginFrame = new JFrame("Librarian Login");
+        librarianLoginFrame.setSize(400, 300);
+        librarianLoginFrame.setLayout(new BorderLayout());
+
+        JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
+
+        JLabel userLabel = new JLabel("Username:");
+        JTextField userField = new JTextField();
+        JLabel passLabel = new JLabel("Password:");
+        JPasswordField passField = new JPasswordField();
+        JButton loginBtn = new JButton("Login");
+
+        // Login Button Action
+        loginBtn.addActionListener(e -> {
+            String username = userField.getText();
+            String password = new String(passField.getPassword());
+
+            boolean loggedIn = false;
+            for (String[] librarian : librarians) {
+                if (librarian[1].equals(username) && librarian[2].equals(password)) {
+                    loggedIn = true;
+                    break;
+                }
+            }
+
+            if (loggedIn) {
+                librarianLoginFrame.dispose(); // Close login window
+                createLibrarianSection(); // Open librarian section
+            } else {
+                JOptionPane.showMessageDialog(librarianLoginFrame, "Invalid username or password!");
+            }
+        });
+
+        panel.add(userLabel);
+        panel.add(userField);
+        panel.add(passLabel);
+        panel.add(passField);
+        panel.add(new JLabel()); // Empty label for spacing
+        panel.add(loginBtn);
+
+        librarianLoginFrame.add(panel, BorderLayout.CENTER);
+        librarianLoginFrame.setVisible(true);
+    }
+
+    // Librarian Section
+    private static void createLibrarianSection() {
+        JFrame librarianFrame = new JFrame("Librarian Section");
+        librarianFrame.setSize(600, 500);
+        librarianFrame.setLayout(new BorderLayout());
+
+        // Header
+        JLabel header = new JLabel("Librarian Section", SwingConstants.CENTER);
+        header.setFont(new Font("Arial", Font.BOLD, 24));
+        librarianFrame.add(header, BorderLayout.NORTH);
+
+        // Buttons Panel
+        JPanel buttonPanel = new JPanel(new GridLayout(6, 1, 10, 10));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(50, 100, 50, 100));
+
+        String[] librarianButtons = {
+            "Add Books", "View Books", "Issue Book",
+            "View Issued Books", "Return Book", "Logout"
+        };
+
+        for (String btnText : librarianButtons) {
+            JButton btn = new JButton(btnText);
+            if (btnText.equals("Logout")) {
+                // Logout Button
+                btn.addActionListener(e -> {
+                    librarianFrame.dispose(); // Close librarian section
+                    createMainFrame(); // Return to main menu
+                });
+            } else {
+                // Other Buttons
+                btn.addActionListener(e -> handleLibrarianButtonClick(btnText, librarianFrame));
+            }
+            buttonPanel.add(btn);
+        }
+
+        librarianFrame.add(buttonPanel, BorderLayout.CENTER);
+        librarianFrame.setVisible(true);
+    }
+
+    // Handle Librarian Button Clicks
+    private static void handleLibrarianButtonClick(String buttonText, JFrame librarianFrame) {
+        switch (buttonText) {
+            case "Add Books":
+                addBook(librarianFrame); // Add a new book
+                break;
+            case "View Books":
+                viewBooks(librarianFrame); // View all books
+                break;
+            case "Issue Book":
+                issueBook(librarianFrame); // Issue a book
+                break;
+            case "View Issued Books":
+                viewIssuedBooks(librarianFrame); // View issued books
+                break;
+            case "Return Book":
+                returnBook(librarianFrame); // Return a book
+                break;
+            default:
+                JOptionPane.showMessageDialog(librarianFrame, "Unknown button clicked.");
+                break;
+        }
+    }
+
+    // Add a Book
+    private static void addBook(JFrame parentFrame) {
+        String id = JOptionPane.showInputDialog(parentFrame, "Enter Book ID:");
+        String title = JOptionPane.showInputDialog(parentFrame, "Enter Title:");
+        String author = JOptionPane.showInputDialog(parentFrame, "Enter Author:");
+        String quantity = JOptionPane.showInputDialog(parentFrame, "Enter Quantity:");
+
+        if (id != null && title != null && author != null && quantity != null) {
+            books.add(new String[]{id, title, author, quantity}); // Add to list
+            JOptionPane.showMessageDialog(parentFrame, "Book added successfully!");
+        } else {
+            JOptionPane.showMessageDialog(parentFrame, "All fields are required!");
+        }
+    }
+
+    // View All Books
+    private static void viewBooks(JFrame parentFrame) {
+        StringBuilder bookList = new StringBuilder();
+        for (String[] book : books) {
+            bookList.append("ID: ").append(book[0])
+                    .append(", Title: ").append(book[1])
+                    .append(", Author: ").append(book[2])
+                    .append(", Quantity: ").append(book[3])
+                    .append("\n");
+        }
+
+        if (bookList.length() == 0) {
+            bookList.append("No books found.");
+        }
+
+        JOptionPane.showMessageDialog(parentFrame, bookList.toString(), "Book List", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    // Issue a Book
+    private static void issueBook(JFrame parentFrame) {
+        String bookId = JOptionPane.showInputDialog(parentFrame, "Enter Book ID:");
+        String studentId = JOptionPane.showInputDialog(parentFrame, "Enter Student ID:");
+
+        if (bookId != null && studentId != null) {
+            issuedBooks.put(bookId, studentId); // Add to issued books
+            JOptionPane.showMessageDialog(parentFrame, "Book issued successfully!");
+        } else {
+            JOptionPane.showMessageDialog(parentFrame, "All fields are required!");
+        }
+    }
+
+    // View Issued Books
+    private static void viewIssuedBooks(JFrame parentFrame) {
+        StringBuilder issuedBookList = new StringBuilder();
+        for (Map.Entry<String, String> entry : issuedBooks.entrySet()) {
+            issuedBookList.append("Book ID: ").append(entry.getKey())
+                    .append(", Student ID: ").append(entry.getValue())
+                    .append("\n");
+        }
+
+        if (issuedBookList.length() == 0) {
+            issuedBookList.append("No books issued.");
+        }
+
+        JOptionPane.showMessageDialog(parentFrame, issuedBookList.toString(), "Issued Books", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    // Return a Book
+    private static void returnBook(JFrame parentFrame) {
+        String bookId = JOptionPane.showInputDialog(parentFrame, "Enter Book ID to return:");
+        if (bookId != null && !bookId.isEmpty()) {
+            if (issuedBooks.containsKey(bookId)) {
+                issuedBooks.remove(bookId); // Remove from issued books
+                JOptionPane.showMessageDialog(parentFrame, "Book returned successfully!");
+            } else {
+                JOptionPane.showMessageDialog(parentFrame, "Book not found in issued list!");
+            }
+        }
+    }
+}
