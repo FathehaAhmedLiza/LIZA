@@ -1,0 +1,19 @@
+ @ParameterizedTest
+    @ValueSource(strings = {"B001", "B002", "B003"})
+    void testIssueMultipleBooks(String bookId) {
+        library.addBook(bookId, "Test Book", "Author", "5");
+        assertTrue(library.issueBook(bookId, "S001"));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "B001, Java Programming, 5",
+            "B002, Python Basics, 3",
+            "B003, C++ Fundamentals, 4"
+    })
+    void testAddMultipleBooks(String id, String title, String quantity) {
+        library.addBook(id, title, "Author X", quantity);
+        assertEquals(title, library.getBookById(id)[1]);
+    }
+}
+
