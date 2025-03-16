@@ -1,0 +1,129 @@
+package org.example;
+
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
+
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class LibraryManagementSystemTest {
+
+    private LibraryManagementSystem library;
+
+    @BeforeAll
+    static void beforeAll() {
+        System.out.println("Setting up test suite...");
+    }
+
+    @AfterAll
+    static void afterAll() {
+        System.out.println("Test suite execution completed.");
+    }
+
+    @BeforeEach
+    void setUp() {
+        library = new LibraryManagementSystem();
+        System.out.println("Setting up before each test...");
+    }
+
+    @AfterEach
+    void tearDown() {
+        System.out.println("Cleaning up after each test...");
+    }
+
+    @Test
+    void testAddLibrarian() {
+        library.addLibrarian("101", "John Doe", "password123");
+        List<String[]> librarians = library.getLibrarians();
+        assertFalse(librarians.isEmpty());
+        assertEquals("John Doe", librarians.get(0)[1]);
+    }
+
+    @Test
+    void testViewLibrarian() {
+        library.addLibrarian("101", "John Doe", "password123");
+        String librarianList = library.viewLibrarians();
+        assertTrue(librarianList.contains("John Doe"));
+    }
+
+    @Test
+    void testDeleteLibrarian() {
+        library.addLibrarian("101", "John Doe", "password123");
+        assertTrue(library.deleteLibrarian("101"));
+        assertFalse(library.deleteLibrarian("999")); // Non-existent librarian
+    }
+
+    @Test
+    void testAddBook() {
+        library.addBook("B001", "Java Programming", "Author X", "5");
+        List<String[]> books = library.getBooks();
+        assertNotNull(books);
+        assertEquals("Java Programming", books.get(0)[1]);
+    }
+
+    @Test
+    void testIssueBook() {
+        library.addBook("B001", "Java Programming", "Author X", "5");
+        assertTrue(library.issueBook("B001", "S001"));
+        assertFalse(library.issueBook("B002", "S001")); // Non-existent book
+    }
+
+    @Test
+    void testReturnBook() {
+        library.addBook("B001", "Java Programming", "Author X", "5");
+        library.issueBook("B001", "S001");
+        assertTrue(library.returnBook("B001"));
+        assertFalse(library.returnBook("B002")); // Non-existent book
+    }
+
+    @Test
+    void testViewIssuedBooks() {
+        library.addBook("B001", "Java Programming", "Author X", "5");
+        library.issueBook("B001", "S001");
+        Map<String, String> issuedBooks = library.getIssuedBooks();
+        assertFalse(issuedBooks.isEmpty());
+        assertEquals("S001", issuedBooks.get("B001"));
+    }
+
+    @Test
+    void testAssertNullAndNotNull() {
+        library.addBook("B001", "Java Programming", "Author X", "5");
+        assertNotNull(library.getBookById("B001"));
+        assertNull(library.getBookById("B999")); // Non-existent book
+    }
+
+    @Test
+    void testAssertSameAndNotSame() {
+        String[] book1 = {"B001", "Java Programming", "Author X", "5"};
+        String[] book2 = {"B002", "Python Programming", "Author Y", "3"};
+        assertSame(book1, book1);
+        assertNotSame(book1, book2);
+    }
+
+    @Test
+    void testAssertEqualsAndNotEquals() {
+        library.addBook("B001", "Java Programming", "Author X", "5");
+        List<String[]> books = library.getBooks();
+        assertEquals("Java Programming", books.get(0)[1]);
+        assertNotEquals("Python Programming", books.get(0)[1]);
+    }
+
+    @Test
+    void testAssertThrows() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            library.issueBook(null, "S001");
+        });
+    }
+
+
+    @Test
+    void testAssertDoesNotThrow() {
+        assertDoesNotThrow(() -> {
+            library.addBook("B001", "Java Programming", "Author X", "5");
+        });
+    }
+
